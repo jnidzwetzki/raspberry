@@ -3,9 +3,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
-#include <sys/time.h>
-
-#include <wiringPi.h>
+#include <sys/ioctl.h>
 
 #include "hcsr04.h"
 
@@ -14,10 +12,11 @@
 #define ECHO 		1
 
 // Delay between two measurements
-#define DELAY		150
+#define DELAY		50
 
 #define LINES		2	
-#define CHARS 		80
+
+static int chars;
 
 // Prototypes
 double update_ema(double, double, float);
@@ -45,7 +44,7 @@ int main(int argc, char** argv)
 		
 		if(distance > 0)
 		{
-			ema = update_ema(ema, distance, 0.2);
+			ema = update_ema(ema, distance, 0.1);
 			update_terminal(distance, ema);
 		}
 
@@ -65,6 +64,10 @@ void init_terminal()
 	for(int i = 0; i < LINES; i++) {
 		printf("\n");
 	}
+
+	struct winsize w;
+	ioctl(STDOUT_FILENO, TIOCGWINSZ, &w);
+	chars = w.ws_col;
 }
 
 void update_terminal(double distance, double ema)
@@ -76,7 +79,7 @@ void update_terminal(double distance, double ema)
 	printf("\rdistance: %.3lf, ema: %.3lf\n\n", distance, ema);
 
 	double frac = ema / 400.0;
-	int fill = CHARS * frac;
+	int fill = (chars - 5) * frac;
 
 	printf("[");
 	for(int i = 0; i < fill; i++)
@@ -84,7 +87,7 @@ void update_terminal(double distance, double ema)
 		printf("#");
 	}
 
-	for(int i = 0; i < (CHARS - fill); i++)
+	for(int i = 0; i < (chars - 5 - fill); i++)
 	{
 		printf(" ");
 	}
