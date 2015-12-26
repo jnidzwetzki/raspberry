@@ -6,6 +6,8 @@
 #include <sys/time.h>
 #include <wiringPi.h>
 
+#define HCSR04_MAX_DISTANCE 400
+
 typedef struct 
 {
 	int trigger_pin;

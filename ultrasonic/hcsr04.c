@@ -82,7 +82,7 @@ double hcsr04_run(hcsr04_context *context)
 	long time_in_micros = 1000000 * dSec + dUsec;
 	double distance = ((double)time_in_micros) * 34300.0 / 2.0 / 1000000.0;
 
-	if(distance > 400) {
+	if(distance > HCSR04_MAX_DISTANCE) {
 		// Out of range
 		return -1;
 	}
